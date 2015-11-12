@@ -1,1 +1,20 @@
-body{padding:50px;font:14px "Lucida Grande",Helvetica,Arial,sans-serif}a{color:#00B7FF}
+@import url(https://fonts.googleapis.com/css?family=Amatic+SC:400,700);
+
+body{
+	padding:50px;
+	color: white;
+	font-family: 'Amatic SC', cursive;
+	font-size: 22px;
+}
+
+a {
+	color:#00B7FF
+}
+
+canvas {
+	position: absolute;
+	top: 0;
+	left: 0;
+	background: black;
+	z-index: -1;
+}
