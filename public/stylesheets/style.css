@@ -1,20 +1,23 @@
 @import url(https://fonts.googleapis.com/css?family=Amatic+SC:400,700);
-
-body{
-	padding:50px;
-	color: white;
-	font-family: 'Amatic SC', cursive;
-	font-size: 22px;
+body {
+  padding: 50px;
+  color: black;
+  font-family: 'Amatic SC', cursive;
+  font-size: 24px;
+  text-align: center;
 }
-
 a {
-	color:#00B7FF
+  color: yellow;
 }
-
 canvas {
-	position: absolute;
-	top: 0;
-	left: 0;
-	background: black;
-	z-index: -1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: darkgrey;
+  z-index: -1;
+}
+h1#logo {
+  -webkit-transform: rotate(-5deg);
+  -webkit-transform-origin: -1 0;
+  font-size: 100px;
 }

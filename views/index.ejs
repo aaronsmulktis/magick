@@ -4,11 +4,16 @@
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
 
+	<script type="text/javascript" src="/javascripts/shaderback.js"></script>
     <script type="text/javascript" src="/javascripts/main.js"></script>
+
+    <script type="text/javascript">
+	window.onload = shaderback.loadURL("javascripts/shader.txt");
+	</script>
 
   </head>
   <body>
-    <h1><%= title %></h1>
+    <h1 id="logo"><%= title %></h1>
     <h3>A World Awaits You</h3>
 
     <p>
@@ -16,7 +21,7 @@
     73 Box Street <br />
 	Brooklyn, NY <br />
 
-    <canvas id="clouds"></canvas>
+    
 
 
   </body>
