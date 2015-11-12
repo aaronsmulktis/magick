@@ -1,59 +1,165 @@
 document.addEventListener("DOMContentLoaded", function(event) {
 
-  window.requestAnimFrame = (function () {
-      return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
-          window.setTimeout(callback, 1000 / 60);
-      };
-  })();
+  var width = window.innerWidth / 2;
+var height = window.innerHeight / 2;
+var stage = new PIXI.Stage(0x0, true);
+var renderer = PIXI.autoDetectRenderer(width, height);
+document.body.appendChild(renderer.view);
 
-  var canvas = document.querySelector('#clouds');
-  var w = window.innerWidth;
-  var h = window.innerHeight;
-  canvas.width = w;
-  canvas.height = h;
-  var ctx = canvas.getContext('2d');
+var uniforms = {
+  iResolution: {
+    type: "2f",
+    value: {
+      x: width,
+      y: height
+    }
+  },
+  iGlobalTime: {
+    type: "1f",
+    value: 0
+  },
+  iMouse: {
+    type: "2f",
+    value: {
+      x: 0,
+      y: 0
+    }
+  }
+};
 
-  var time = Date.now();
-  var buffer = ctx.createImageData(w, h);
+var fragmentSrc = [
+  "precision mediump float;",
+  
+  "uniform vec2 iResolution;",
+  "uniform float iGlobalTime;",
+  "uniform vec2 iMouse;",
+  
+  "float hash( float n ) {",
+    "return fract(sin(n)*43758.5453);",
+  "}",
+  
+  "float noise( in vec3 x ) {",
+    "vec3 p = floor(x);",
+    "vec3 f = fract(x);",
+    "f = f*f*(3.0-2.0*f);",
+    "float n = p.x + p.y*57.0 + 113.0*p.z;",
+    "return mix(mix(mix( hash(n+  0.0), hash(n+  1.0),f.x),",
+                   "mix( hash(n+ 57.0), hash(n+ 58.0),f.x),f.y),",
+               "mix(mix( hash(n+113.0), hash(n+114.0),f.x),",
+                   "mix( hash(n+170.0), hash(n+171.0),f.x),f.y),f.z);",
+  "}",
+  
+  "vec4 map( in vec3 p ) {",
+    "float d = 0.2 - p.y;",
+    "vec3 q = p - vec3(1.0,0.1,0.0)*iGlobalTime;",
+    "float f;",
+    "f  = 0.5000*noise( q ); q = q*2.02;",
+    "f += 0.2500*noise( q ); q = q*2.03;",
+    "f += 0.1250*noise( q ); q = q*2.01;",
+    "f += 0.0625*noise( q );",
+    "d += 3.0 * f;",
+    "d = clamp( d, 0.0, 1.0 );",
+    "vec4 res = vec4( d );",
+    "res.xyz = mix( 1.15*vec3(1.0,0.95,0.8), vec3(0.7,0.7,0.7), res.x );",
+    "return res;",
+  "}",
+  
+  "vec3 sundir = vec3(-1.0,0.0,0.0);",
+  
+  "vec4 raymarch( in vec3 ro, in vec3 rd ) {",
+    "vec4 sum = vec4(0, 0, 0, 0);",
+    "float t = 0.0;",
+    "for(int i=0; i<64; i++) {",
+      "if( sum.a > 0.99 ) continue;",
 
-  var PI = Math.PI;
-  var TWO_PI = PI * 2;
-  var N = 10;
+      "vec3 pos = ro + t*rd;",
+      "vec4 col = map( pos );",
+    
+      "#if 1",
+        "float dif =  clamp((col.w - map(pos+0.3*sundir).w)/0.6, 0.0, 1.0 );",
+        "vec3 lin = vec3(0.65,0.68,0.7)*1.35 + 0.45*vec3(0.7, 0.5, 0.3)*dif;",
+        "col.xyz *= lin;",
+      "#endif",
+    
+      "col.a *= 0.35;",
+      "col.rgb *= col.a;",
+      "sum = sum + col*(1.0 - sum.a); ",
 
-  function render(time, fragcoord) {
-      var light_pos = [w / 2 + w * Math.sin(time) * 0.3, h / 2 + h * Math.cos(time) * 0.5];
-      var intensity = 100 * Math.abs(Math.tan((time + 2) / 10));
-      var dist = Math.sqrt(Math.pow(fragcoord[0] - light_pos[0], 2) + Math.pow(fragcoord[1] - light_pos[1], 2));
-      var light_color = [0.1, 0.8, 0.5];
-      var alpha = 0.5 / (dist / intensity);
-      return [light_color[0] * alpha, light_color[1] * alpha, light_color[2] * alpha, alpha * alpha];
-  };
+      "#if 0",
+        "t += 0.1;",
+      "#else",
+        "t += max(0.1,0.025*t);",
+      "#endif",
+    "}",
 
-  function animate() {
-      var delta = (Date.now() - time) / 1000;
-      buffer = ctx.createImageData(w, h);
-      ctx.clearRect(0, 0, w, h);
-      for (var x = 0; x < w; x++) {
-          for (var y = 0; y < h; y++) {
-              var ret = render(delta, [x, y]);
-              var i = (y * buffer.width + x) * 4;
-              buffer.data[i] = ret[0] * 255;
-              buffer.data[i + 1] = ret[1] * 255;
-              buffer.data[i + 2] = ret[2] * 255;
-              buffer.data[i + 3] = ret[3] * 255;
-          }
-      }
-      ctx.putImageData(buffer, 0, 0);
-      requestAnimFrame(animate);
-  };
+    "sum.xyz /= (0.001+sum.w);",
+    "return clamp( sum, 0.0, 1.0 );",
+  "}",
+  
+  "void main(void) {",
+    "vec2 q = gl_FragCoord.xy / iResolution.xy;",
+    "vec2 p = -1.0 + 2.0*q;",
+    "p.x *= iResolution.x/ iResolution.y;",
+    "vec2 mo = -1.0 + 2.0*iMouse.xy / iResolution.xy;",
+    
+    // camera
+    "vec3 ro = 4.0*normalize(vec3(cos(2.75-3.0*mo.x), 0.7+(mo.y+1.0), sin(2.75-3.0*mo.x)));",
+    "vec3 ta = vec3(0.0, 1.0, 0.0);",
+    "vec3 ww = normalize( ta - ro);",
+    "vec3 uu = normalize(cross( vec3(0.0,1.0,0.0), ww ));",
+    "vec3 vv = normalize(cross(ww,uu));",
+    "vec3 rd = normalize( p.x*uu + p.y*vv + 1.5*ww );",
 
-  window.onresize = function () {
-      w = window.innerWidth;
-      h = window.innerHeight;
-      canvas.width = w;
-      canvas.height = h;
-  };
+  
+    "vec4 res = raymarch( ro, rd );",
 
-  animate();
+    "float sun = clamp( dot(sundir,rd), 0.0, 1.0 );",
+    "vec3 col = vec3(0.6,0.71,0.75) - rd.y*0.2*vec3(1.0,0.5,1.0) + 0.15*0.5;",
+    "col += 0.2*vec3(1.0,.6,0.1)*pow( sun, 8.0 );",
+    "col *= 0.95;",
+    "col = mix( col, res.xyz, res.w );",
+    "col += 0.1*vec3(1.0,0.4,0.2)*pow( sun, 3.0 );",
+  
+    "gl_FragColor = vec4( col, 1.0 );",
+  "}"
+];
+
+var shader = new PIXI.AbstractFilter(fragmentSrc, uniforms);
+
+var bg = PIXI.Sprite.fromImage("http://www.goodboydigital.com/pixijs/examples/25/test_BG.jpg");
+bg.width = width;
+bg.height = height;
+bg.shader = shader;
+stage.addChild(bg);
+
+var logo = PIXI.Sprite.fromImage("http://www.goodboydigital.com/pixijs/examples/25/pixiJsV2.png");
+logo.width = 472 / 3;
+logo.height = 174 / 3;
+logo.x = width - logo.width - 10;
+logo.y = height - logo.height - 10;
+stage.addChild(logo);
+
+var count = 0;
+var mouse;
+
+function animate() {
+  count += 0.01;
+  mouse = stage.getMousePosition();
+  
+  shader.uniforms.iGlobalTime.value = count;
+  if (mouse.x > 0 && mouse.y > 0) {  // If mouse is over stage
+    shader.uniforms.iMouse.value = {
+      x: mouse.x,
+      y: mouse.y
+    };
+  }
+  shader.syncUniforms();
+    
+  renderer.render(stage);
+        
+  requestAnimFrame(animate);
+}
+
+requestAnimFrame(animate);
 
 });
