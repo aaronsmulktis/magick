@@ -1,13 +1,17 @@
-@import url(https://fonts.googleapis.com/css?family=Amatic+SC:400,700);
+@import url(https://fonts.googleapis.com/css?family=Ubuntu:400,300,700);
+@import url(https://fonts.googleapis.com/css?family=Press+Start+2P);
 body {
   padding: 50px;
   color: black;
-  font-family: 'Amatic SC', cursive;
-  font-size: 24px;
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 16px;
   text-align: center;
 }
 a {
-  color: yellow;
+  color: #4285f4;
+}
+a:hover {
+  color: #0b51c5;
 }
 canvas {
   position: absolute;
@@ -18,5 +22,14 @@ canvas {
 h1#logo {
   -webkit-transform: rotate(-5deg);
   -webkit-transform-origin: -1 0;
-  font-size: 100px;
+  margin-left: -34px;
+  font-size: 38px;
+  font-family: 'Press Start 2P', cursive;
+}
+.box {
+  background: white;
+  padding: 20px;
+  width: 50vh;
+  margin: 0 auto;
+  margin-top: 25vh;
 }

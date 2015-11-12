@@ -1,0 +1,13 @@
+{
+  "name": "threex.proceduralcity",
+  "_cacheHeaders": {
+    "ETag": "\"6ed3875c16eb65c1a5a023ce6ba2d492541a531a\"",
+    "Content-Type": "application/zip",
+    "Content-Disposition": "attachment; filename=threex.proceduralcity-master.zip"
+  },
+  "_release": "e-tag:6ed3875c1",
+  "_source": "https://github.com/jeromeetienne/threex.proceduralcity/archive/master.zip",
+  "_target": "*",
+  "_originalSource": "https://github.com/jeromeetienne/threex.proceduralcity/archive/master.zip",
+  "_direct": true
+}

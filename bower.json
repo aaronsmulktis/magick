@@ -1,0 +1,8 @@
+{
+  "name": "Magick City",
+  "version": "0.1.0",
+  "dependencies": {
+    "threex.proceduralcity": "https://github.com/jeromeetienne/threex.proceduralcity/archive/master.zip"
+  },
+  "private": true
+}
