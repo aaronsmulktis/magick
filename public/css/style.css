@@ -1,7 +1,7 @@
 @import url(https://fonts.googleapis.com/css?family=Ubuntu:400,300,700);
 @import url(https://fonts.googleapis.com/css?family=Press+Start+2P);
 body {
-  padding: 50px;
+  padding: 0;
   color: black;
   font-family: 'Ubuntu', sans-serif;
   font-size: 16px;
@@ -23,16 +23,34 @@ canvas {
   z-index: -1;
 }
 h1#logo {
-  -webkit-transform: rotate(-5deg);
-  -webkit-transform-origin: -1 0;
-  margin-left: -34px;
-  font-size: 38px;
+  text-align: center;
+  /*-webkit-transform: rotate(-5deg);
+  -webkit-transform-origin: -1 0;*/
+  font-size: 30px;
   font-family: 'Press Start 2P', cursive;
 }
+
+.haze {
+  opacity: 0.33;
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#f7925b+0,aa2f2f+100&0.33+0,0.66+100 */
+  background: -moz-radial-gradient(center, ellipse cover,  rgba(247,146,91,0.33) 0%, rgba(170,47,47,0.66) 100%); /* FF3.6-15 */
+  background: -webkit-radial-gradient(center, ellipse cover,  rgba(247,146,91,0.33) 0%,rgba(170,47,47,0.66) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: radial-gradient(ellipse at center,  rgba(247,146,91,0.33) 0%,rgba(170,47,47,0.66) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#54f7925b', endColorstr='#a8aa2f2f',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+}
+
+.boxContainer {
+  display: flex;
+  align-items: center;
+  height: 100vh;
+}
+
 .box {
   background: white;
   padding: 20px;
-  width: 50vh;
   margin: 0 auto;
-  margin-top: 25vh;
+  position: relative;
+  z-index: 1;
 }
